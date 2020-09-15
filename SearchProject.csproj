@@ -122,7 +122,14 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Developer.cs" />
+    <Compile Include="Models\Icon.cs" />
+    <Compile Include="Models\Maintainer.cs" />
+    <Compile Include="Models\Meta.cs" />
+    <Compile Include="Models\RelatedTopic.cs" />
     <Compile Include="Models\SearchResults.cs" />
+    <Compile Include="Models\SrcOptions.cs" />
+    <Compile Include="Models\Topic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
