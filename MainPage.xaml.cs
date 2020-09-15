@@ -8,9 +8,6 @@ using Windows.UI.Xaml.Controls;
 
 namespace SearchProject
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         public RelatedTopicsViewModel ViewModel { get; set; }
@@ -21,12 +18,45 @@ namespace SearchProject
             this.ViewModel = new RelatedTopicsViewModel();
         }
 
+        private void ExecuteSearch(string searchString)
+        {
+
+            var t = Task.Run(() => TryGetSearchAsync(searchString));
+            t.Wait();
+
+            var relatedTopicsVM = new RelatedTopicsViewModel(t.Result);
+
+            this.ResultsList.ItemsSource = relatedTopicsVM.RelatedTopics;
+            this.TopicsList.ItemsSource = relatedTopicsVM.Topics;
+
+        }
+
+        private static bool IsEnterPressed()
+        {
+            var enterState = CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Enter);
+            return (enterState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+        }
+
+        private void ContentPanel_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (IsEnterPressed())
+            {
+                ExecuteSearch(searchInput.Text);
+            }
+
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ExecuteSearch(searchInput.Text);
 
         }
-        private async Task<SearchResults> tryGetAsync(string query)
+
+        /* This approach uses view modles backed by POCO
+         * It takes the results off of the response and 
+         * saerializes them to the view models
+         */
+        private async Task<SearchResults> TryGetSearchAsync(string query)
         {
             //Create an HTTP client object
             Windows.Web.Http.HttpClient httpClient = new Windows.Web.Http.HttpClient();
@@ -71,35 +101,9 @@ namespace SearchProject
                 httpClient.Dispose();
             }
 
-
             return searchResults;
 
         }
 
-        private void ExecuteSearch(string searchString) {
-
-            var t = Task.Run(() => tryGetAsync(searchString));
-            t.Wait();
-
-            var relatedTopicsVM = new RelatedTopicsViewModel(t.Result);
-
-            this.ResultsList.ItemsSource = relatedTopicsVM.RelatedTopics;
-            this.TopicsList.ItemsSource = relatedTopicsVM.Topics;
-
-        }
-
-        private static bool IsEnterPressed()
-        {
-            var enterState = CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Enter);
-            return (enterState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
-        }
-
-        private void contentPanel_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-            if (IsEnterPressed()) {
-                ExecuteSearch(searchInput.Text);
-            }
-
-        }
     }
 }
